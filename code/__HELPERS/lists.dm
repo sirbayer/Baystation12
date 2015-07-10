@@ -343,6 +343,12 @@ proc/listclearnulls(list/list)
 		return (result + L.Copy(Li, 0))
 	return (result + R.Copy(Ri, 0))
 
+// Macros to test for bits in a bitfield. Note, that this is for use with indexes, not bit-masks!
+#define BITTEST(bitfield,index)  ((bitfield)  &   (1 << (index)))
+#define BITSET(bitfield,index)   (bitfield)  |=  (1 << (index))
+#define BITRESET(bitfield,index) (bitfield)  &= ~(1 << (index))
+#define BITFLIP(bitfield,index)  (bitfield)  ^=  (1 << (index))
+
 //Converts a bitfield to a list of numbers (or words if a wordlist is provided)
 /proc/bitfield2list(bitfield = 0, list/wordlist)
 	var/list/r = list()
@@ -368,6 +374,12 @@ proc/listclearnulls(list/list)
 			return key
 		i++
 	return null
+
+// Returns the key based on the index
+/proc/get_key_by_value(var/list/L, var/value)
+	for(var/key in L)
+		if(L[key] == value)
+			return key
 
 /proc/count_by_type(var/list/L, type)
 	var/i = 0
@@ -400,6 +412,60 @@ proc/listclearnulls(list/list)
 	//world.log << "	output: [out.len]"
 	return reverselist(out)
 
+/proc/dd_sortedObjectList(var/list/L, var/cache=list())
+	if(L.len < 2)
+		return L
+	var/middle = L.len / 2 + 1 // Copy is first,second-1
+	return dd_mergeObjectList(dd_sortedObjectList(L.Copy(0,middle), cache), dd_sortedObjectList(L.Copy(middle), cache), cache) //second parameter null = to end of list
+
+/proc/dd_mergeObjectList(var/list/L, var/list/R, var/list/cache)
+	var/Li=1
+	var/Ri=1
+	var/list/result = new()
+	while(Li <= L.len && Ri <= R.len)
+		var/LLi = L[Li]
+		var/RRi = R[Ri]
+		var/LLiV = cache[LLi]
+		var/RRiV = cache[RRi]
+		if(!LLiV)
+			LLiV = LLi:dd_SortValue()
+			cache[LLi] = LLiV
+		if(!RRiV)
+			RRiV = RRi:dd_SortValue()
+			cache[RRi] = RRiV
+		if(LLiV < RRiV)
+			result += L[Li++]
+		else
+			result += R[Ri++]
+
+	if(Li <= L.len)
+		return (result + L.Copy(Li, 0))
+	return (result + R.Copy(Ri, 0))
+
+// Insert an object into a sorted list, preserving sortedness
+/proc/dd_insertObjectList(var/list/L, var/O)
+	var/min = 1
+	var/max = L.len
+	var/Oval = O:dd_SortValue()
+
+	while(1)
+		var/mid = min+round((max-min)/2)
+
+		if(mid == max)
+			L.Insert(mid, O)
+			return
+
+		var/Lmid = L[mid]
+		var/midval = Lmid:dd_SortValue()
+		if(Oval == midval)
+			L.Insert(mid, O)
+			return
+		else if(Oval < midval)
+			max = mid
+		else
+			min = mid+1
+
+/*
 proc/dd_sortedObjectList(list/incoming)
 	/*
 	   Use binary search to order by dd_SortValue().
@@ -456,7 +522,7 @@ proc/dd_sortedObjectList(list/incoming)
 		sorted_list += current_sort_object
 		sorted_list += list_bottom
 	return sorted_list
-
+*/
 
 proc/dd_sortedtextlist(list/incoming, case_sensitive = 0)
 	// Returns a new list with the text values sorted.
@@ -527,3 +593,10 @@ datum/proc/dd_SortValue()
 
 /obj/machinery/dd_SortValue()
 	return "[sanitize(name)]"
+
+/obj/machinery/camera/dd_SortValue()
+	return "[c_tag]"
+
+/datum/alarm/dd_SortValue()
+	return "[sanitize(last_name)]"
+

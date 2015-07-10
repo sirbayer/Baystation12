@@ -37,18 +37,22 @@
 /turf/ex_act(severity)
 	return 0
 
-
-/turf/bullet_act(var/obj/item/projectile/Proj)
-	if(istype(Proj ,/obj/item/projectile/beam/pulse))
-		src.ex_act(2)
-	..()
-	return 0
-
-/turf/bullet_act(var/obj/item/projectile/Proj)
-	if(istype(Proj ,/obj/item/projectile/bullet/gyro))
-		explosion(src, -1, 0, 2)
-	..()
-	return 0
+/turf/attack_hand(mob/user)
+	if(!(user.canmove) || user.restrained() || !(user.pulling))
+		return 0
+	if(user.pulling.anchored || !isturf(user.pulling.loc))
+		return 0
+	if(user.pulling.loc != user.loc && get_dist(user, user.pulling) > 1)
+		return 0
+	if(ismob(user.pulling))
+		var/mob/M = user.pulling
+		var/atom/movable/t = M.pulling
+		M.stop_pulling()
+		step(user.pulling, get_dir(user.pulling.loc, src))
+		M.start_pulling(t)
+	else
+		step(user.pulling, get_dir(user.pulling.loc, src))
+	return 1
 
 /turf/Enter(atom/movable/mover as mob|obj, atom/forget as mob|obj|turf|area)
 	if(movement_disabled && usr.ckey != movement_disabled_exception)
@@ -223,12 +227,6 @@
 		if(S.zone) S.zone.rebuild()
 
 	if(ispath(N, /turf/simulated/floor))
-		//if the old turf had a zone, connect the new turf to it as well - Cael
-		//Adjusted by SkyMarshal 5/10/13 - The air master will handle the addition of the new turf.
-		//if(zone)
-		//	zone.RemoveTurf(src)
-		//	if(!zone.CheckStatus())
-		//		zone.SetStatus(ZONE_ACTIVE)
 
 		var/turf/simulated/W = new N( locate(src.x, src.y, src.z) )
 		//W.Assimilate_Air()
@@ -245,16 +243,15 @@
 			W.RemoveLattice()
 
 		if(air_master)
-			air_master.mark_for_update(src)
+			air_master.mark_for_update(src) //handle the addition of the new turf.
+
+		for(var/turf/space/S in range(W,1))
+			S.update_starlight()
 
 		W.levelupdate()
 		return W
 
 	else
-		//if(zone)
-		//	zone.RemoveTurf(src)
-		//	if(!zone.CheckStatus())
-		//		zone.SetStatus(ZONE_ACTIVE)
 
 		var/turf/W = new N( locate(src.x, src.y, src.z) )
 		W.lighting_lumcount += old_lumcount
@@ -267,6 +264,9 @@
 
 		if(air_master)
 			air_master.mark_for_update(src)
+
+		for(var/turf/space/S in range(W,1))
+			S.update_starlight()
 
 		W.levelupdate()
 		return W

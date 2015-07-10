@@ -6,7 +6,7 @@
 	var/obj/wrapped = null
 	density = 1
 	var/sortTag = null
-	flags = FPRINT | NOBLUDGEON
+	flags = NOBLUDGEON
 	mouse_drag_pointer = MOUSE_ACTIVE_POINTER
 	var/examtext = null
 	var/nameset = 0
@@ -15,13 +15,15 @@
 	var/tag_x
 
 	attack_hand(mob/user as mob)
+		unwrap()
+
+	proc/unwrap()
 		if(wrapped) //sometimes items can disappear. For example, bombs. --rastaf0
 			wrapped.loc = (get_turf(src.loc))
 			if(istype(wrapped, /obj/structure/closet))
 				var/obj/structure/closet/O = wrapped
 				O.welded = 0
 		del(src)
-		return
 
 	attackby(obj/item/W as obj, mob/user as mob)
 		if(istype(W, /obj/item/device/destTagger))
@@ -43,7 +45,7 @@
 		else if(istype(W, /obj/item/weapon/pen))
 			switch(alert("What would you like to alter?",,"Title","Description", "Cancel"))
 				if("Title")
-					var/str = trim(copytext(sanitize(input(usr,"Label text?","Set label","")),1,MAX_NAME_LEN))
+					var/str = trim(sanitize(copytext(input(usr,"Label text?","Set label",""),1,MAX_NAME_LEN)))
 					if(!str || !length(str))
 						usr << "<span class='warning'> Invalid text.</span>"
 						return
@@ -57,7 +59,7 @@
 					else
 						nameset = 1
 				if("Description")
-					var/str = trim(copytext(sanitize(input(usr,"Label text?","Set label","")),1,MAX_MESSAGE_LEN))
+					var/str = trim(sanitize(copytext(input(usr,"Label text?","Set label",""),1,MAX_MESSAGE_LEN)))
 					if(!str || !length(str))
 						usr << "\red Invalid text."
 						return
@@ -100,13 +102,12 @@
 				I.pixel_y = -3
 			overlays += I
 
-	examine()
-		..()
-		if(src in oview(4))
+	examine(mob/user)
+		if(..(user, 4))
 			if(sortTag)
-				usr << "<span class='notice'>It is labeled \"[sortTag]\"</span>"
+				user << "<span class='notice'>It is labeled \"[sortTag]\"</span>"
 			if(examtext)
-				usr << "<span class='notice'>It has a note attached which reads, \"[examtext]\"</span>"
+				user << "<span class='notice'>It has a note attached which reads, \"[examtext]\"</span>"
 		return
 
 /obj/item/smallDelivery
@@ -116,7 +117,6 @@
 	icon_state = "deliverycrate3"
 	var/obj/item/wrapped = null
 	var/sortTag = null
-	flags = FPRINT
 	var/examtext = null
 	var/nameset = 0
 	var/tag_x
@@ -152,7 +152,7 @@
 		else if(istype(W, /obj/item/weapon/pen))
 			switch(alert("What would you like to alter?",,"Title","Description", "Cancel"))
 				if("Title")
-					var/str = trim(copytext(sanitize(input(usr,"Label text?","Set label","")),1,MAX_NAME_LEN))
+					var/str = trim(sanitize(copytext(input(usr,"Label text?","Set label",""),1,MAX_NAME_LEN)))
 					if(!str || !length(str))
 						usr << "<span class='warning'> Invalid text.</span>"
 						return
@@ -167,7 +167,7 @@
 						nameset = 1
 
 				if("Description")
-					var/str = trim(copytext(sanitize(input(usr,"Label text?","Set label","")),1,MAX_MESSAGE_LEN))
+					var/str = trim(sanitize(copytext(input(usr,"Label text?","Set label",""),1,MAX_MESSAGE_LEN)))
 					if(!str || !length(str))
 						usr << "\red Invalid text."
 						return
@@ -206,13 +206,12 @@
 					I.pixel_y = -3
 			overlays += I
 
-	examine()
-		..()
-		if(src in oview(4))
+	examine(mob/user)
+		if(..(user, 4))
 			if(sortTag)
-				usr << "<span class='notice'>It is labeled \"[sortTag]\"</span>"
+				user << "<span class='notice'>It is labeled \"[sortTag]\"</span>"
 			if(examtext)
-				usr << "<span class='notice'>It has a note attached which reads, \"[examtext]\"</span>"
+				user << "<span class='notice'>It has a note attached which reads, \"[examtext]\"</span>"
 		return
 
 /obj/item/weapon/packageWrap
@@ -304,10 +303,10 @@
 			return
 		return
 
-	examine()
-		if(src in usr)
-			usr << "\blue There are [amount] units of package wrap left!"
-		..()
+	examine(mob/user)
+		if(..(user, 0))
+			user << "\blue There are [amount] units of package wrap left!"
+
 		return
 
 
@@ -319,7 +318,7 @@
 
 	w_class = 2
 	item_state = "electronic"
-	flags = FPRINT | TABLEPASS | CONDUCT
+	flags = CONDUCT
 	slot_flags = SLOT_BELT
 
 	proc/openwindow(mob/user as mob)

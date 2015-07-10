@@ -29,7 +29,7 @@
 
 				switch(tile_dir_mode)
 					if(1) // All directions accepted
-						F.dir = D
+						F.set_dir(D)
 						F.icon_state = mode
 					if(2) // Corner mode - diagonal directions converted CW around.
 						switch(D)
@@ -41,7 +41,7 @@
 								D = WEST
 							if(NORTHWEST)
 								D = NORTH
-						F.dir = D
+						F.set_dir(D)
 						F.icon_state = mode
 					if(3) // cardinal directions only. I've adjusted diagonals the same way the facing code does.
 						switch(D)
@@ -53,7 +53,7 @@
 								D = WEST
 							if(NORTHWEST)
 								D = WEST
-						F.dir = D
+						F.set_dir(D)
 						F.icon_state = mode
 					if(4) // floors.dmi icon_states "warningcorner" and "warnwhitecorner" are incorrect, this fixes it
 						var/D2
@@ -66,16 +66,16 @@
 								D2 = NORTH
 							if(NORTHWEST)
 								D2 = EAST
-						F.dir = D2
+						F.set_dir(D2)
 						F.icon_state = mode
 					if(5)
-						F.dir = 0
+						F.set_dir(0)
 						if(D == NORTH || D == SOUTH || D == NORTHEAST || D == SOUTHWEST)
 							F.icon_state = mode
 						else
 							F.icon_state = "[mode]_inv"
 			else
-				F.dir = 0
+				F.set_dir(0)
 				F.icon_state = mode
 		else
 			usr << "You can't paint that!"
@@ -97,6 +97,10 @@
 				mode = "white"
 				mode_nice = "white"
 				return
+			if(design == "dark")
+				mode = "dark"
+				mode_nice = "dark"
+				return
 			if(design == "showroom" || design == "hydro" || design == "freezer")
 				mode = "[design]floor"
 				mode_nice = design
@@ -104,7 +108,7 @@
 			mode_nice = design
 			mode = "[replacetext(design, "-", "")]full"
 		if("corner")
-			var/design = input("Which design?", "Floor painter") in list("black", "red", "blue", "green", "yellow", "purple", "neutral", "white", "white-grey", "white-red", "white-blue", "white-green", "white-yellow", "white-purple")
+			var/design = input("Which design?", "Floor painter") in list("black", "red", "blue", "green", "yellow", "purple", "neutral", "white", "white-red", "white-blue", "white-green", "white-yellow", "white-purple")
 			mode_nice = "[design] corner"
 			mode = "[replacetext(design, "-", "")]corner"
 			tile_dir_mode = 2
@@ -124,20 +128,22 @@
 			if(design == "white")
 				mode = "whitehall"
 				mode_nice = "white side"
-				tile_dir_mode = 1
+			else if(design == "black") // because SOMEONE made the black/grey side/corner sprite have the same name as the 'empty space' sprite :(
+				mode = "blackfloor"
+				mode_nice = design
 			else
 				mode_nice = design
 				mode = replacetext(design, "-", "")
-				tile_dir_mode = 1
+			tile_dir_mode = 1
 		if("special")
 			var/design = input("Which design?", "Floor painter") in list("arrival", "escape", "caution", "warning", "white-warning", "white-blue-green", "loadingarea", "delivery", "bot", "white-delivery", "white-bot")
 			if(design == "white-blue-green")
 				mode_nice = design
 				mode = "whitebluegreencorners"
 				tile_dir_mode = 2
-			else if(design == "delivery" || design == "bot")
+			else if(design == "delivery" || design == "bot" || design == "white-delivery" || design == "white-bot")
 				mode_nice = design
-				mode = design
+				mode = replacetext(design, "-", "")
 				tile_dir_mode = 0
 			else if(design == "loadingarea")
 				mode_nice = design
@@ -204,6 +210,6 @@
 				if("P (OP)")
 					mode = "white_halfp"
 
-/obj/item/device/floor_painter/examine()
-	..()
-	usr << "It is in [mode_nice] mode."
+/obj/item/device/floor_painter/examine(mob/user)
+	..(user)
+	user << "It is in [mode_nice] mode."

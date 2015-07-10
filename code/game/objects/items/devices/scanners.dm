@@ -4,16 +4,14 @@ T-RAY
 DETECTIVE SCANNER
 HEALTH ANALYZER
 GAS ANALYZER
-PLANT ANALYZER
 MASS SPECTROMETER
 REAGENT SCANNER
 */
 /obj/item/device/t_scanner
-	name = "T-ray scanner"
+	name = "\improper T-ray scanner"
 	desc = "A terahertz-ray emitter and scanner used to detect underfloor objects such as cables and pipes."
 	icon_state = "t-ray0"
 	var/on = 0
-	flags = FPRINT | TABLEPASS
 	slot_flags = SLOT_BELT
 	w_class = 2
 	item_state = "electronic"
@@ -65,11 +63,11 @@ REAGENT SCANNER
 
 
 /obj/item/device/healthanalyzer
-	name = "Health Analyzer"
+	name = "health analyzer"
+	desc = "A hand-held body scanner able to distinguish vital signs of the subject."
 	icon_state = "health"
 	item_state = "analyzer"
-	desc = "A hand-held body scanner able to distinguish vital signs of the subject."
-	flags = FPRINT | TABLEPASS | CONDUCT
+	flags = CONDUCT
 	slot_flags = SLOT_BELT
 	throwforce = 3
 	w_class = 2.0
@@ -93,7 +91,7 @@ REAGENT SCANNER
 	if (!(istype(usr, /mob/living/carbon/human) || ticker) && ticker.mode.name != "monkey")
 		usr << "\red You don't have the dexterity to do this!"
 		return
-	user.visible_message("<span class='notice'> [user] has analyzed [M]'s vitals.","<span class='notice'> You have analyzed [M]'s vitals.")
+	user.visible_message("<span class='notice'> [user] has analyzed [M]'s vitals.</span>","<span class='notice'> You have analyzed [M]'s vitals.</span>")
 
 	if (!istype(M, /mob/living/carbon) || (ishuman(M) && (M:species.flags & IS_SYNTHETIC)))
 		//these sensors are designed for organic life
@@ -101,7 +99,7 @@ REAGENT SCANNER
 		user.show_message("\t Key: <font color='blue'>Suffocation</font>/<font color='green'>Toxin</font>/<font color='#FFA500'>Burns</font>/<font color='red'>Brute</font>", 1)
 		user.show_message("\t Damage Specifics: <font color='blue'>?</font> - <font color='green'>?</font> - <font color='#FFA500'>?</font> - <font color='red'>?</font>")
 		user.show_message("\blue Body Temperature: [M.bodytemperature-T0C]&deg;C ([M.bodytemperature*1.8-459.67]&deg;F)", 1)
-		user.show_message("\red <b>Warning: Blood Level ERROR: --% --cl.\blue Type: ERROR")
+		user.show_message("\red <b>Warning: Blood Level ERROR: --% --cl.\blue Type: ERROR</b>")
 		user.show_message("\blue Subject's pulse: <font color='red'>-- bpm.</font>")
 		return
 
@@ -205,9 +203,9 @@ REAGENT SCANNER
 			var/blood_type = M.dna.b_type
 			blood_percent *= 100
 			if(blood_volume <= 500 && blood_volume > 336)
-				user.show_message("\red <b>Warning: Blood Level LOW: [blood_percent]% [blood_volume]cl.\blue Type: [blood_type]")
+				user.show_message("\red <b>Warning: Blood Level LOW: [blood_percent]% [blood_volume]cl.</b>\blue Type: [blood_type]")
 			else if(blood_volume <= 336)
-				user.show_message("\red <b>Warning: Blood Level CRITICAL: [blood_percent]% [blood_volume]cl.\blue Type: [blood_type]")
+				user.show_message("\red <b>Warning: Blood Level CRITICAL: [blood_percent]% [blood_volume]cl.</b>\blue Type: [blood_type]")
 			else
 				user.show_message("\blue Blood Level Normal: [blood_percent]% [blood_volume]cl. Type: [blood_type]")
 		user.show_message("\blue Subject's pulse: <font color='[H.pulse == PULSE_THREADY || H.pulse == PULSE_NONE ? "red" : "blue"]'>[H.get_pulse(GETPULSE_TOOL)] bpm.</font>")
@@ -227,12 +225,12 @@ REAGENT SCANNER
 
 
 /obj/item/device/analyzer
-	desc = "A hand-held environmental scanner which reports current gas levels."
 	name = "analyzer"
+	desc = "A hand-held environmental scanner which reports current gas levels."
 	icon_state = "atmos"
 	item_state = "analyzer"
 	w_class = 2.0
-	flags = FPRINT | TABLEPASS| CONDUCT
+	flags = CONDUCT
 	slot_flags = SLOT_BELT
 	throwforce = 5
 	throw_speed = 4
@@ -274,12 +272,12 @@ REAGENT SCANNER
 	return
 
 /obj/item/device/mass_spectrometer
+	name = "mass spectrometer"
 	desc = "A hand-held mass spectrometer which identifies trace chemicals in a blood sample."
-	name = "mass-spectrometer"
 	icon_state = "spectrometer"
 	item_state = "analyzer"
 	w_class = 2.0
-	flags = FPRINT | TABLEPASS| CONDUCT | OPENCONTAINER
+	flags = CONDUCT | OPENCONTAINER
 	slot_flags = SLOT_BELT
 	throwforce = 5
 	throw_speed = 4
@@ -342,7 +340,7 @@ REAGENT SCANNER
 	return
 
 /obj/item/device/mass_spectrometer/adv
-	name = "advanced mass-spectrometer"
+	name = "advanced mass spectrometer"
 	icon_state = "adv_spectrometer"
 	details = 1
 	origin_tech = "magnets=4;biotech=2"
@@ -353,7 +351,7 @@ REAGENT SCANNER
 	icon_state = "spectrometer"
 	item_state = "analyzer"
 	w_class = 2.0
-	flags = FPRINT | TABLEPASS | CONDUCT
+	flags = CONDUCT
 	slot_flags = SLOT_BELT
 	throwforce = 5
 	throw_speed = 4

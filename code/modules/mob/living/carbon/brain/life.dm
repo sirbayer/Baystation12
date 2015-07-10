@@ -225,7 +225,6 @@
 			else
 				healths.icon_state = "health7"
 
-		if(pullin)	pullin.icon_state = "pull[pulling ? 1 : 0]"
 		if (client)
 			client.screen.Remove(global_hud.blurry,global_hud.druggy,global_hud.vimpaired)
 
@@ -246,7 +245,7 @@
 
 		if (stat != 2)
 			if (machine)
-				if (!( machine.check_eye(src) ))
+				if (machine.check_eye(src) < 0)
 					reset_view(null)
 			else
 				if(client && !client.adminobs)

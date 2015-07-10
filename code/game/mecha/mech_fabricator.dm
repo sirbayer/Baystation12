@@ -453,10 +453,10 @@
 	for(var/datum/design/D in files.known_designs)
 		if(D.build_type&16)
 			if(D.category in part_sets)//Checks if it's a valid category
-				if(add_part_to_set(D.category, text2path(D.build_path)))//Adds it to said category
+				if(add_part_to_set(D.category, D.build_path))//Adds it to said category
 					i++
 			else
-				if(add_part_to_set("Misc", text2path(D.build_path)))//If in doubt, chunk it into the Misc
+				if(add_part_to_set("Misc", D.build_path))//If in doubt, chunk it into the Misc
 					i++
 	return i
 
@@ -502,7 +502,7 @@
 		src.updateUsrDialog()
 		sleep(30) //only sleep if called by user
 	var/found = 0
-	for(var/obj/machinery/computer/rdconsole/RDC in get_area(src))
+	for(var/obj/machinery/computer/rdconsole/RDC in get_area_all_atoms(get_area(src)))
 		if(!RDC.sync)
 			continue
 		found++
@@ -826,7 +826,7 @@
 			src.overlays += "fab-load-[material]"//loading animation is now an overlay based on material type. No more spontaneous conversion of all ores to metal. -vey
 			sleep(10)
 
-			while(src.resources[material] < res_max_amount && stack)
+			while(src.resources[material] < res_max_amount && stack.amount >= 1)
 				src.resources[material] += amnt
 				stack.use(1)
 				count++

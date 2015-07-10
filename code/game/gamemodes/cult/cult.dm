@@ -28,7 +28,6 @@
 	recommended_enemies = 4
 
 	uplink_welcome = "Nar-Sie Uplink Console:"
-	uplink_uses = 10
 
 	var/datum/mind/sacrifice_target = null
 	var/finished = 0
@@ -281,6 +280,7 @@
 
 /datum/game_mode/cult/declare_completion()
 	if(config.objectives_disabled)
+		..()
 		return 1
 	if(!check_cult_victory())
 		feedback_set_details("round_end_result","win - cult win")
@@ -334,7 +334,7 @@
 	if( cult.len || (ticker && istype(ticker.mode,/datum/game_mode/cult)) )
 		var/text = "<FONT size = 2><B>The cultists were:</B></FONT>"
 		for(var/datum/mind/cultist in cult)
-			text += printplayer(cultist)
+			text += print_player_full(cultist)
 		text += "<br>"
 
 		world << text

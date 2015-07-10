@@ -5,7 +5,6 @@
 	icon_state = "cell"
 	item_state = "cell"
 	origin_tech = "powerstorage=1"
-	flags = FPRINT|TABLEPASS
 	force = 5.0
 	throwforce = 5.0
 	throw_speed = 3
@@ -89,8 +88,11 @@
 	name = "infinite-capacity power cell!"
 	icon_state = "icell"
 	origin_tech =  null
-	maxcharge = 30000
+	maxcharge = 30000 //determines how badly mobs get shocked
 	matter = list("metal" = 700, "glass" = 80)
+	
+	check_charge()
+		return 1
 	use()
 		return 1
 
@@ -111,6 +113,5 @@
 	origin_tech = "powerstorage=2;biotech=4"
 	icon = 'icons/mob/slimes.dmi' //'icons/obj/harvest.dmi'
 	icon_state = "yellow slime extract" //"potato_battery"
-	maxcharge = 10000
 	maxcharge = 10000
 	matter = null

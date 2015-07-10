@@ -1,7 +1,24 @@
 //This file was auto-corrected by findeclaration.exe on 25.5.2012 20:42:32
 
+/obj/item/device/mmi/digital/New()
+	src.brainmob = new(src)
+	src.brainmob.add_language("Robot Talk")
+	src.brainmob.loc = src
+	src.brainmob.container = src
+	src.brainmob.stat = 0
+	src.brainmob.silent = 0
+	dead_mob_list -= src.brainmob
+
+/obj/item/device/mmi/digital/transfer_identity(var/mob/living/carbon/H)
+	brainmob.dna = H.dna
+	brainmob.timeofhostdeath = H.timeofdeath
+	brainmob.stat = 0
+	if(H.mind)
+		H.mind.transfer_to(brainmob)
+	return
+
 /obj/item/device/mmi
-	name = "Man-Machine Interface"
+	name = "man-machine interface"
 	desc = "The Warrior's bland acronym, MMI, obscures the true horror of this monstrosity."
 	icon = 'icons/obj/assemblies.dmi'
 	icon_state = "mmi_empty"
@@ -18,6 +35,7 @@
 
 	var/locked = 0
 	var/mob/living/carbon/brain/brainmob = null//The current occupant.
+	var/obj/item/organ/brain/brainobj = null	//The current brain organ.
 	var/mob/living/silicon/robot = null//Appears unused.
 	var/obj/mecha = null//This does not appear to be used outside of reference in mecha.dm.
 
@@ -44,7 +62,8 @@
 			living_mob_list += brainmob
 
 			user.drop_item()
-			del(O)
+			brainobj = O
+			brainobj.loc = src
 
 			name = "Man-Machine Interface: [brainmob.real_name]"
 			icon_state = "mmi_full"
@@ -75,7 +94,13 @@
 			user << "\red You upend the MMI, but the brain is clamped into place."
 		else
 			user << "\blue You upend the MMI, spilling the brain onto the floor."
-			var/obj/item/organ/brain/brain = new(user.loc)
+			var/obj/item/organ/brain/brain
+			if (brainobj)	//Pull brain organ out of MMI.
+				brainobj.loc = user.loc
+				brain = brainobj
+				brainobj = null
+			else	//Or make a new one if empty.
+				brain = new(user.loc)
 			brainmob.container = null//Reset brainmob mmi var.
 			brainmob.loc = brain//Throw mob into brain.
 			living_mob_list -= brainmob//Get outta here
@@ -99,7 +124,7 @@
 			return
 
 /obj/item/device/mmi/radio_enabled
-	name = "Radio-enabled Man-Machine Interface"
+	name = "radio-enabled man-machine interface"
 	desc = "The Warrior's bland acronym, MMI, obscures the true horror of this monstrosity. This one comes with a built-in radio."
 	origin_tech = "biotech=4"
 

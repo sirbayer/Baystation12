@@ -110,7 +110,7 @@
 	if(byond_version < MIN_CLIENT_VERSION)		//Out of date client.
 		return null
 
-	if(!guests_allowed && IsGuestKey(key))
+	if(!config.guests_allowed && IsGuestKey(key))
 		alert(src,"This server doesn't allow guest accounts to play. Please go to http://www.byond.com/ and register for a key.","Guest","OK")
 		del(src)
 		return
@@ -176,6 +176,25 @@
 	clients -= src
 	return ..()
 
+
+// here because it's similar to below
+
+// Returns null if no DB connection can be established, or -1 if the requested key was not found in the database
+
+/proc/get_player_age(key)
+	establish_db_connection()
+	if(!dbcon.IsConnected())
+		return null
+
+	var/sql_ckey = sql_sanitize_text(ckey(key))
+
+	var/DBQuery/query = dbcon.NewQuery("SELECT datediff(Now(),firstseen) as age FROM erro_player WHERE ckey = '[sql_ckey]'")
+	query.Execute()
+
+	if(query.NextRow())
+		return text2num(query.item[1])
+	else
+		return -1
 
 
 /client/proc/log_client_to_db()
@@ -299,5 +318,17 @@
 		'icons/spideros_icons/sos_12.png',
 		'icons/spideros_icons/sos_13.png',
 		'icons/spideros_icons/sos_14.png',
-		'html/images/ntlogo.png'
+		'html/images/ntlogo.png',
+		'html/images/talisman.png'
 		)
+
+
+mob/proc/MayRespawn()
+	return 0
+
+client/proc/MayRespawn()
+	if(mob)
+		return mob.MayRespawn()
+
+	// Something went wrong, client is usually kicked or transfered to a new mob at this point
+	return 0
